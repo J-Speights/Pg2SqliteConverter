@@ -7,8 +7,8 @@ from pathlib import Path
 load_dotenv()
 
 OUTPUT_DIR = Path("db_files")
-POSTGRESQL_BACKUP_FILE = OUTPUT_DIR / "nimble_schema.sql"
-FINAL_FILE = OUTPUT_DIR / "edited_nimble_schema.sql"
+POSTGRESQL_BACKUP_FILE = OUTPUT_DIR / "export_schema.sql"
+FINAL_FILE = OUTPUT_DIR / "sqlite_ready_schema.sql"
 SQLITE_DB_FILENAME = OUTPUT_DIR / "nimble.db3"
 
 
