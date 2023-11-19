@@ -12,3 +12,7 @@ def test_bad_env_vars(monkeypatch: pytest.MonkeyPatch):
 
     result = backup_postgresql_schema()
     assert result == 1
+
+
+def test_subprocess():  # Not sure how to test this yet.
+    pass

@@ -151,17 +151,17 @@ def convert_schema_from_pg_to_sqlite() -> int:
 
     # Finds the first CREATE TABLE
     try:
-        index = next(
+        first_create_index = next(
             i
             for i, line in enumerate(lines)
             if line.lstrip().startswith("CREATE TABLE")
         )
     except StopIteration:  # No Creates for some reason
-        index = None
+        first_create_index = None
 
     # Throws out everything before the first CREATE TABLE, Sqlite can't use it.
-    if index is not None:
-        lines = lines[index:]
+    if first_create_index is not None:
+        lines = lines[first_create_index:]
 
     # Strip out all comments
     lines = [line for line in lines if not line.lstrip().startswith("--")]
