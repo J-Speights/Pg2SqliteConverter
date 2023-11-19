@@ -1,8 +1,5 @@
 # Pg2SqliteConverter
 
-Description
-This repository contains a Python script designed to back up a PostgreSQL database schema, convert it to an SQLite-compatible format, and then create an SQLite database using the converted schema. It is ideal for transitioning data between PostgreSQL and SQLite environments.
-
 ## Description
 
 This repository contains a Python script designed to back up a PostgreSQL database schema, convert it to an SQLite-compatible format, and then create an SQLite database using the converted schema. It is ideal for transitioning data between PostgreSQL and SQLite environments.
