@@ -1,4 +1,4 @@
-from schema_formatter.worker_functions import fix_primary_key
+from schema_formatter.schema_management import fix_primary_key
 
 
 def test_old_and_busted():

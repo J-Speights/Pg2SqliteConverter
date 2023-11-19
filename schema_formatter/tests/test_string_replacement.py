@@ -1,4 +1,4 @@
-from schema_formatter.worker_functions import string_replacement
+from schema_formatter.schema_management import string_replacement
 
 
 def test_public():

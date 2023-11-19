@@ -1,6 +1,6 @@
 import os
 import pytest
-from schema_formatter.worker_functions import backup_postgresql_schema
+from schema_formatter.schema_management import backup_postgresql_schema
 
 
 def test_bad_env_vars(monkeypatch: pytest.MonkeyPatch):

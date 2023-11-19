@@ -1,6 +1,6 @@
 import os
 from pytest_mock import MockFixture
-from schema_formatter.worker_functions import delete_file
+from schema_formatter.schema_management import delete_file
 
 
 def test_delete_existing_file():

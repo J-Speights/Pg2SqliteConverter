@@ -1,6 +1,6 @@
 import sys
 
-from schema_formatter.worker_functions import (
+from schema_formatter.schema_management import (
     backup_postgresql_schema,
     convert_schema_from_pg_to_sqlite,
     create_database,
