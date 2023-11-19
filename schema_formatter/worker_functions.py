@@ -99,7 +99,7 @@ def string_replacement(line: str) -> str:
         "text[]": "text",
         "jsonb[]": "text",
         "public.": "",
-        "uuid": " text",
+        "uuid": "text",
         "timestamp without time zone": "text",
         "numeric": "text",
         "boolean": "text",
@@ -117,10 +117,14 @@ def fix_primary_key(line: str) -> str:
     We need to define our PRIMARY KEYs in line.
     Every table in my database has an id primary key, so we're going to count on that.
     """
-    old_and_busted = "id  text NOT NULL"
+    old_and_busted = "id text NOT NULL"
+    old_and_really_busted = "id text  NOT NULL"
     new_hotness = "id text PRIMARY KEY"
+
     if line.lstrip().startswith(old_and_busted):
         line = line.replace(old_and_busted, new_hotness)
+    if line.lstrip().startswith(old_and_really_busted):
+        line = line.replace(old_and_really_busted, new_hotness)
     return line
 
 
