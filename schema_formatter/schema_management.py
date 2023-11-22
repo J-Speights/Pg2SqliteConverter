@@ -4,12 +4,22 @@ import subprocess
 from dotenv import load_dotenv
 from pathlib import Path
 
+# DB Connection info is stored in .env or environment variables.
+# Don't store in code
 load_dotenv()
 
+# Change or rename these as needed
 OUTPUT_DIR = Path("db_files")
 POSTGRESQL_BACKUP_FILE = OUTPUT_DIR / "export_schema.sql"
 FINAL_FILE = OUTPUT_DIR / "sqlite_ready_schema.sql"
 SQLITE_DB_FILENAME = OUTPUT_DIR / "nimble.db3"
+
+# Define any custom replacements here.
+# You may also update the string_replacement function.
+CUSTOM_REPLACEMENTS = {
+    "inserted_at text NOT NULL": "inserted_at text",
+    "updated_at text NOT NULL": "updated_at text",
+}
 
 
 def delete_file(file_name: str) -> int:
@@ -106,6 +116,10 @@ def string_replacement(line: str) -> str:
         "integer": "text",
         "jsonb": "text",
     }
+    if CUSTOM_REPLACEMENTS:
+        custom_replacements = CUSTOM_REPLACEMENTS
+        replacements.update(custom_replacements)
+
     for old, new in replacements.items():
         line = line.replace(old, new)
 
