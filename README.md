@@ -48,4 +48,4 @@ Contributions to this project are welcome. Please fork the repository and submit
 
 ## License
 
-[Specify the license or state if it's open for public use]
+MIT License
