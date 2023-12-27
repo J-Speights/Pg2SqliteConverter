@@ -19,6 +19,7 @@ SQLITE_DB_FILENAME = OUTPUT_DIR / "nimble.db3"
 CUSTOM_REPLACEMENTS = {
     "inserted_at text NOT NULL": "inserted_at text",
     "updated_at text NOT NULL": "updated_at text",
+    "::text": "",
 }
 
 
