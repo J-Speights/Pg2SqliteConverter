@@ -35,6 +35,7 @@ Create a `.env` file in the root directory with the following variables:
 - `DB_USER`: Your PostgreSQL database user.
 - `DB_PASS`: Your PostgreSQL database password.
 - `DB_NAME`: Your PostgreSQL database name.
+- `PG_DUMP_PATH`: The absolute path for PG_DUMP.exe.
 
 ## Usage
 

@@ -47,44 +47,45 @@ def backup_postgresql_schema() -> int:
     if exit_code:
         return 1
 
+    host = os.getenv("DB_HOST")
+    port = os.getenv("DB_PORT")
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASS")
+    database = os.getenv("DB_NAME")
+    output_file = POSTGRESQL_BACKUP_FILE
+    pg_dump = os.getenv("PG_DUMP_PATH")
+
+    if not all([host, port, user, password, database]):
+        raise EnvironmentError(
+            "Missing environment variable(s). "
+            "Make sure your .env file is set up correctly."
+        )
+
+    command = [
+        pg_dump,
+        "-h",
+        host,
+        "-p",
+        str(port),
+        "-U",
+        user,
+        "-d",
+        database,
+        "--schema-only",
+        "-f",
+        output_file,
+    ]
+    env = os.environ.copy()
+    env["PGPASSWORD"] = password
+
     try:
-        host = os.getenv("DB_HOST")
-        port = os.getenv("DB_PORT")
-        user = os.getenv("DB_USER")
-        password = os.getenv("DB_PASS")
-        database = os.getenv("DB_NAME")
-        output_file = POSTGRESQL_BACKUP_FILE
-
-        if not all([host, port, user, password, database]):
-            raise EnvironmentError(
-                "Missing environment variable(s). "
-                "Make sure your .env file is set up correctly."
-            )
-
-        command = [
-            "pg_dump",
-            "-h",
-            host,
-            "-p",
-            str(port),
-            "-U",
-            user,
-            "-d",
-            database,
-            "--schema-only",
-            "-f",
-            output_file,
-        ]
-        env = os.environ.copy()
-        env["PGPASSWORD"] = password
-
         subprocess.run(command, env=env, check=True)
         print(f"Schema backup of {database} success. Created {output_file}")
 
         return 0
 
     except OSError as e:
-        print(f"Error handling file: {e}")
+        print(f"Error handling file: {e}. Is your PG_DUMP_PATH variable set in .env?")
     except subprocess.CalledProcessError as e:
         print(f"Error during backup: {e}")
     except Exception as e:
