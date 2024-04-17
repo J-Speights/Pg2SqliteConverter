@@ -1,6 +1,6 @@
 """
 This creates the sync_db file used for nimble.
-Unnecessary for full project.  Should be removed from repo.
+Unnecessary for full project.  Should be removed from main branch of repo.
 """
 
 import sqlite3
