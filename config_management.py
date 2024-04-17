@@ -4,7 +4,31 @@ import toml
 from classes import AppConfig, DatabaseConfig, FilePathConfig
 
 
-def load_config_as_class():
+def load_str_replacements() -> dict:
+    """
+    Loads string replacements from a config file.
+    """
+    replacements = toml.load("replacements.toml")
+    standard_replacements = replacements.get("standard_replacements", {})
+    custom_replacements = replacements.get("custom_replacements", {})
+    return {**standard_replacements, **custom_replacements}
+
+
+def load_config() -> dict:
+    """
+    Retrieves data from the config.toml file.
+    """
+    if not os.path.exists("config.toml"):
+        return None
+    with open("config.toml") as file:
+        config = toml.load(file)
+        return config
+
+
+def load_config_as_class() -> AppConfig:
+    """
+    Loads the config file into AppConfig class.
+    """
     DATABASE = "database"
     FILEPATH_CONFIG = "file_paths"
 
@@ -16,21 +40,20 @@ def load_config_as_class():
     return AppConfig(database=database_config, file_paths=filepath_config)
 
 
-def load_config():
-    if not os.path.exists("config.toml"):
-        return None
-    with open("config.toml") as file:
-        config = toml.load(file)
-        return config
-
-
-def save_config(config):
+def save_config(config) -> None:
+    """
+    Saves the configuration to the config.toml file.
+    """
     with open("config.toml", "w") as file:
         toml.dump(config, file)
     return
 
 
-def first_run_setup():
+def first_run_setup() -> None:
+    """
+    Walks the user through first time setup.
+    Saves the configuration to the config.toml file.
+    """
     config = {"database": {}, "file_paths": {}}
     config["database"]["name"] = input("Enter the database name: \n")
     config["database"]["host"] = input("Enter the database host: \n")

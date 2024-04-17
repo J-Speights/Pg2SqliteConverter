@@ -1,19 +1,14 @@
 import os
 import sqlite3
 import subprocess
-from config_management import AppConfig
+from config_management import AppConfig, load_str_replacements
 
-# Define any custom replacements here.
-# You may also update the string_replacement function.
-CUSTOM_REPLACEMENTS = {
-    "inserted_at text NOT NULL": "inserted_at text",
-    "updated_at text NOT NULL": "updated_at text",
-    "::text": "",
-}
+# Edit replacements.toml to add custom replacements.
+# Standard replacements can also be edited if needed.
 
 
 def delete_file(file_name: str) -> int:
-    """Deletes file_name using os.remove."""
+    """Deletes file_name if exists using os.remove."""
     try:
         if os.path.exists(file_name):
             os.remove(file_name)
@@ -29,27 +24,26 @@ def delete_file(file_name: str) -> int:
 
 def backup_postgresql_schema(config: AppConfig) -> int:
     """
-    Creates a schema only backup of the Nimble Database.
+    Creates a schema only backup of the Target Database.
     Deletes the old copy if one exists.
     """
-    host = config.database.host
-    port = config.database.port
-    user = config.database.user
-    password = config.database.password
-    database = config.database.name
-
     output_file = config.file_paths.postgres_backup_file
 
     exit_code = delete_file(output_file)
     if exit_code:
         return 1
 
+    host = config.database.host
+    port = config.database.port
+    user = config.database.user
+    password = config.database.password
+    database = config.database.name
     pg_dump = config.file_paths.pg_dump_path
 
     if not all([host, port, user, password, database]):
         raise EnvironmentError(
-            "Missing environment variable(s). "
-            "Make sure your .env file is set up correctly."
+            "Missing configuration variable(s). "
+            "Make sure your config.toml file is set up correctly."
         )
 
     command = [
@@ -76,7 +70,9 @@ def backup_postgresql_schema(config: AppConfig) -> int:
         return 0
 
     except OSError as e:
-        print(f"Error handling file: {e}. Is your PG_DUMP_PATH variable set in .env?")
+        print(
+            f"Error handling file: {e}. Is your PG_DUMP_PATH variable set in config.toml?"
+        )
     except subprocess.CalledProcessError as e:
         print(f"Error during backup: {e}")
     except Exception as e:
@@ -94,24 +90,9 @@ def string_replacement(line: str) -> str:
 
     NOTE: The order of the replacements dict is very important!
     It replaces top to bottom, in order. So uuid[] has to be above uuid, etc.
+    Edit replacements.toml to add custom replacements.
     """
-    replacements = {
-        "DEFAULT public.uuid_generate_v4()": "",
-        "DEFAULT 0": "",
-        "uuid[]": "text",
-        "text[]": "text",
-        "jsonb[]": "text",
-        "public.": "",
-        "uuid": "text",
-        "timestamp without time zone": "text",
-        "numeric": "text",
-        "boolean": "text",
-        "integer": "text",
-        "jsonb": "text",
-    }
-    if CUSTOM_REPLACEMENTS:
-        custom_replacements = CUSTOM_REPLACEMENTS
-        replacements.update(custom_replacements)
+    replacements = load_str_replacements()
 
     for old, new in replacements.items():
         line = line.replace(old, new)
@@ -121,8 +102,9 @@ def string_replacement(line: str) -> str:
 
 def fix_primary_key(line: str) -> str:
     """
-    We need to define our PRIMARY KEYs in line.
+    We need to define our PRIMARY KEYs inline, rather than through ALTER TABLE.
     Every table in my database has an id primary key, so we're going to count on that.
+    This could probably be done with Regex, but I'd rather not.
     """
     old_and_busted = "id text NOT NULL"
     old_and_really_busted = "id text  NOT NULL"
@@ -138,13 +120,14 @@ def fix_primary_key(line: str) -> str:
 def convert_schema_from_pg_to_sqlite(config: AppConfig) -> int:
     """
     Reads a schema backup from Postgres and drops anything sqlite does not or cannot use.
-    Converts all fields to text fields for simplicity, and writes to FINAL_FILE.
-    Deletes the old FINAL_FILE if one exists.
+    Converts all fields to text fields for simplicity, and writes to sql_import_file.
+    Deletes the old sql_import_file if one exists.
+
+    Enhancement: convert fields to their appropriate types where possible.
     """
     sqlite_import_file = config.file_paths.sqlite_import_file
     postgres_backup_file = config.file_paths.postgres_backup_file
 
-    # Toss the old file to start
     exit_code = delete_file(sqlite_import_file)
     if exit_code:
         return 1
@@ -209,7 +192,7 @@ def convert_schema_from_pg_to_sqlite(config: AppConfig) -> int:
     return 0
 
 
-def create_database(config: AppConfig) -> int:
+def create_sqlite_database(config: AppConfig) -> int:
     """
     Create a new Sqlite database and apply schema.
     Deletes the existing file if one exists.

@@ -1,0 +1,23 @@
+# SQLite can't handle most of the  below datatypes.
+# We convert them to text or remove them entirely as needed. 
+[standard_replacements]
+"DEFAULT public.uuid_generate_v4()" = ""
+"DEFAULT 0" = ""
+"uuid[]" = "text"
+"text[]" = "text"
+"jsonb[]" = "text"
+"public." = ""
+"uuid" = "text"
+"timestamp without time zone" = "text"
+"numeric" = "text"
+"boolean" = "text"
+"integer" = "text"
+"jsonb" = "text"
+
+# My database has columns that aren't handled locally.
+# The cloud API handles inserted_at and updated_at
+# So they're null in the local db, until the cloud sync updates them.
+[custom_replacements]
+"inserted_at text NOT NULL" = "inserted_at text"
+"updated_at text NOT NULL" = "updated_at text"
+"::text" = ""

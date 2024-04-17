@@ -1,7 +1,13 @@
+"""
+This creates the sync_db file used for nimble.
+Unnecessary for full project.  Should be removed from repo.
+"""
+
 import sqlite3
 
-from schema_formatter.schema_management import delete_file, OUTPUT_DIR
+from schema_formatter.schema_management import delete_file
 
+OUTPUT_DIR = "db_files"
 SQLITE_DB_FILENAME = OUTPUT_DIR / "sync_database.db3"
 SYNC_DB_FILE = OUTPUT_DIR / "sync_database.sql"
 

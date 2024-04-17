@@ -1,9 +1,18 @@
+"""
+NOTE: Custom replacements are currently defined in the schema_management file.
+Edit the CUSTOM_REPLACEMENTS dictionary to add or remove custom replacements.
+
+The TODOs in the main function are largely Nimble project specific. 
+They sync the cloud database, the local api database, and the station DBs automatically.
+TODO: clean this up in the main branch.
+"""
+
 import sys
 
 from schema_formatter.schema_management import (
     backup_postgresql_schema,
     convert_schema_from_pg_to_sqlite,
-    create_database,
+    create_sqlite_database,
 )
 
 from config_management import load_config_as_class, first_run_setup
@@ -29,7 +38,7 @@ def main() -> None:
     if not exit_code:
         exit_code = convert_schema_from_pg_to_sqlite(config)
     if not exit_code:
-        exit_code = create_database(config)
+        exit_code = create_sqlite_database(config)
     # TODO: Upload to S3 bucket (New sqlite db).
     # TODO: Notify dev of change. (Email, Teams.)
     if exit_code:

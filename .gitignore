@@ -150,7 +150,7 @@ dmypy.json
 .pytype/
 
 # TOML config file
-*.toml
+config.toml
 
 # Cython debug symbols
 cython_debug/
