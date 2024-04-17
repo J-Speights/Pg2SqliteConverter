@@ -1,18 +1,7 @@
 import os
 import sqlite3
 import subprocess
-from dotenv import load_dotenv
-from pathlib import Path
-
-# DB Connection info is stored in .env or environment variables.
-# Don't store in code
-load_dotenv()
-
-# Change or rename these as needed
-OUTPUT_DIR = Path("db_files")
-POSTGRESQL_BACKUP_FILE = OUTPUT_DIR / "export_schema.sql"
-FINAL_FILE = OUTPUT_DIR / "sqlite_ready_schema.sql"
-SQLITE_DB_FILENAME = OUTPUT_DIR / "nimble.db3"
+from config_management import AppConfig
 
 # Define any custom replacements here.
 # You may also update the string_replacement function.
@@ -38,22 +27,24 @@ def delete_file(file_name: str) -> int:
     return 0
 
 
-def backup_postgresql_schema() -> int:
+def backup_postgresql_schema(config: AppConfig) -> int:
     """
     Creates a schema only backup of the Nimble Database.
     Deletes the old copy if one exists.
     """
-    exit_code = delete_file(POSTGRESQL_BACKUP_FILE)
+    host = config.database.host
+    port = config.database.port
+    user = config.database.user
+    password = config.database.password
+    database = config.database.name
+
+    output_file = config.file_paths.postgres_backup_file
+
+    exit_code = delete_file(output_file)
     if exit_code:
         return 1
 
-    host = os.getenv("DB_HOST")
-    port = os.getenv("DB_PORT")
-    user = os.getenv("DB_USER")
-    password = os.getenv("DB_PASS")
-    database = os.getenv("DB_NAME")
-    output_file = POSTGRESQL_BACKUP_FILE
-    pg_dump = os.getenv("PG_DUMP_PATH")
+    pg_dump = config.file_paths.pg_dump_path
 
     if not all([host, port, user, password, database]):
         raise EnvironmentError(
@@ -144,25 +135,25 @@ def fix_primary_key(line: str) -> str:
     return line
 
 
-def convert_schema_from_pg_to_sqlite() -> int:
+def convert_schema_from_pg_to_sqlite(config: AppConfig) -> int:
     """
     Reads a schema backup from Postgres and drops anything sqlite does not or cannot use.
     Converts all fields to text fields for simplicity, and writes to FINAL_FILE.
     Deletes the old FINAL_FILE if one exists.
     """
+    sqlite_import_file = config.file_paths.sqlite_import_file
+    postgres_backup_file = config.file_paths.postgres_backup_file
+
     # Toss the old file to start
-    exit_code = delete_file(FINAL_FILE)
+    exit_code = delete_file(sqlite_import_file)
     if exit_code:
         return 1
 
-    if (
-        not POSTGRESQL_BACKUP_FILE.exists()
-        or POSTGRESQL_BACKUP_FILE.stat().st_size == 0
-    ):
-        print(f"Backup file {POSTGRESQL_BACKUP_FILE} missing or empty.")
+    if not postgres_backup_file.exists() or postgres_backup_file.stat().st_size == 0:
+        print(f"Backup file {postgres_backup_file} missing or empty.")
         return 1
 
-    with open(POSTGRESQL_BACKUP_FILE, "r", encoding="utf-8") as file:
+    with open(postgres_backup_file, "r", encoding="utf-8") as file:
         lines = file.readlines()
 
     # Finds the first CREATE TABLE
@@ -210,31 +201,35 @@ def convert_schema_from_pg_to_sqlite() -> int:
 
     lines = [fix_primary_key(line) for line in lines]
     try:
-        with open(FINAL_FILE, "w", encoding="utf-8") as new_file:
+        with open(sqlite_import_file, "w", encoding="utf-8") as new_file:
             new_file.writelines(lines)
     except OSError as e:
-        print(f"Could not write to file {FINAL_FILE}: {e}")
+        print(f"Could not write to file {sqlite_import_file}: {e}")
 
     return 0
 
 
-def create_database() -> int:
+def create_database(config: AppConfig) -> int:
     """
     Create a new Sqlite database and apply schema.
     Deletes the existing file if one exists.
     """
+
+    sqlite_db = config.file_paths.sqlite_db
+    sqlite_import_file = config.file_paths.sqlite_import_file
+
     try:
-        exit_code = delete_file(SQLITE_DB_FILENAME)
+        exit_code = delete_file(sqlite_db)
         if exit_code:
             return 1
 
-        conn = sqlite3.connect(SQLITE_DB_FILENAME)
-        with open(FINAL_FILE, "r", encoding="utf-8") as file:
+        conn = sqlite3.connect(sqlite_db)
+        with open(sqlite_import_file, "r", encoding="utf-8") as file:
             schema_sql = file.read()
-            print(f"Success creating new sqlite db: {SQLITE_DB_FILENAME}")
+            print(f"Success creating new sqlite db: {sqlite_db}")
 
             conn.executescript(schema_sql)
-            print(f"Created schema to sqlite db: {SQLITE_DB_FILENAME}")
+            print(f"Created schema to sqlite db: {sqlite_db}")
 
             return 0
 
