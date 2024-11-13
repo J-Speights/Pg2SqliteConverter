@@ -29,6 +29,22 @@ class FilePathConfig:
 
 
 @dataclass
+class S3Config:
+    bucket_name: str
+    s3_key: str
+    aws_access_key_id: str
+    aws_secret_access_key: str
+    region_name: str
+
+
+@dataclass
+class TeamsConfig:
+    webhook_url: str
+
+
+@dataclass
 class AppConfig:
     database: DatabaseConfig
     file_paths: FilePathConfig
+    s3_config: S3Config
+    teams_config: TeamsConfig

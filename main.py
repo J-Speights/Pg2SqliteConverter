@@ -17,6 +17,8 @@ from schema_formatter.schema_management import (
 
 from config_management import load_config_as_class, first_run_setup
 from command_line_args import handle_arguments
+from upload import upload_to_s3
+from notify import notify_teams
 
 
 def main() -> None:
@@ -39,8 +41,14 @@ def main() -> None:
         exit_code = convert_schema_from_pg_to_sqlite(config)
     if not exit_code:
         exit_code = create_sqlite_database(config)
-    # TODO: Upload to S3 bucket (New sqlite db).
-    # TODO: Notify dev of change. (Email, Teams.)
+
+    if not exit_code:
+        exit_code, s3_url = upload_to_s3(config)
+
+    if not exit_code and s3_url:
+        webhook_url = config.teams_config.webhook_url
+        exit_code = notify_teams(webhook_url, s3_url)
+
     if exit_code:
         sys.exit(exit_code)
 

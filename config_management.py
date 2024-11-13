@@ -1,7 +1,7 @@
 import os
 import toml
 
-from classes import AppConfig, DatabaseConfig, FilePathConfig
+from classes import AppConfig, DatabaseConfig, FilePathConfig, S3Config, TeamsConfig
 
 
 def load_str_replacements() -> dict:
@@ -31,13 +31,22 @@ def load_config_as_class() -> AppConfig:
     """
     DATABASE = "database"
     FILEPATH_CONFIG = "file_paths"
+    AWS_CONFIG = "s3_config"
+    TEAMS_CONFIG = "teams_config"
 
     config_dict = load_config()
     if not config_dict:
         return None
     database_config = DatabaseConfig(**config_dict[DATABASE])
     filepath_config = FilePathConfig(**config_dict[FILEPATH_CONFIG])
-    return AppConfig(database=database_config, file_paths=filepath_config)
+    aws_config = S3Config(**config_dict[AWS_CONFIG])
+    teams_config = TeamsConfig(**config_dict[TEAMS_CONFIG])
+    return AppConfig(
+        database=database_config,
+        file_paths=filepath_config,
+        s3_config=aws_config,
+        teams_config=teams_config,
+    )
 
 
 def save_config(config) -> None:
@@ -69,5 +78,18 @@ def first_run_setup() -> None:
     config["file_paths"]["sqlite_import_file"] = "sqlite_ready_schema.sql"
     config["file_paths"]["postgres_backup_file"] = "postgres_backup.sql"
     config["file_paths"]["sqlite_db"] = "nimble.db3"
+
+    config["s3_config"]["bucket_name"] = input("Enter the S3 bucket name: \n")
+    config["s3_config"]["s3_key"] = input(
+        "Enter the S3 key (This is the base filename for your uploaded file.): \n"
+    )
+    config["s3_config"]["aws_access_key_id"] = input("Enter the AWS Access Key ID: \n")
+
+    config["s3_config"]["aws_secret_access_key"] = input(
+        "Enter the AWS Secret Access Key: \n"
+    )
+    config["s3_config"]["region_name"] = input("Enter the AWS region name: \n")
+
+    config["teams_config"]["webhook_url"] = input("Enter the Teams webhook URL: \n")
     save_config(config)
     return
