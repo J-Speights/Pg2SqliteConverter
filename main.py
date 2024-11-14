@@ -18,6 +18,7 @@ from schema_formatter.schema_management import (
 from config_management import load_config_as_class, first_run_setup
 from command_line_args import handle_arguments
 from upload import upload_to_s3
+
 from notify import notify_teams
 
 
