@@ -87,5 +87,8 @@ def notify_teams(webhook_url: str, s3_url: str) -> int:
     if response.status_code == 200:
         print("Notification sent successfully.")
         return 0
+    if response.status_code == 202:
+        print("Notification dispatched for send.")
+        return 0
     print("Failed to send notification.")
     return 1
