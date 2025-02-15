@@ -6,8 +6,9 @@ Unnecessary for full project.  Should be removed from main branch of repo.
 import sqlite3
 
 from schema_formatter.schema_management import delete_file
+from pathlib import Path
 
-OUTPUT_DIR = "db_files"
+OUTPUT_DIR = Path("db_files")
 SQLITE_DB_FILENAME = OUTPUT_DIR / "sync_database.db3"
 SYNC_DB_FILE = OUTPUT_DIR / "sync_database.sql"
 
