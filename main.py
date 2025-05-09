@@ -2,7 +2,7 @@
 NOTE: Custom replacements are currently defined in the schema_management file.
 Edit the CUSTOM_REPLACEMENTS dictionary to add or remove custom replacements.
 
-The TODOs in the main function are largely Nimble project specific. 
+The TODOs in the main function are largely Nimble project specific.
 They sync the cloud database, the local api database, and the station DBs automatically.
 TODO: clean this up in the main branch.
 """
@@ -36,6 +36,8 @@ def main() -> None:
         config = load_config_as_class()
 
     # TODO: Alter database query: this goes to the cloud db.
+    # TODO: We'll basically be doing our database edit from here, instead of from pgadmin.
+    # TODO: After the commit, we'll continue, and that should give us an up-to-the-minute db.
 
     exit_code = backup_postgresql_schema(config)
     if not exit_code:
