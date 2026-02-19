@@ -14,12 +14,12 @@ def load_str_replacements() -> dict:
     return {**standard_replacements, **custom_replacements}
 
 
-def load_config() -> dict:
+def load_config() -> dict[str, dict]:
     """
     Retrieves data from the config.toml file.
     """
     if not os.path.exists("config.toml"):
-        return None
+        return {}
     with open("config.toml") as file:
         config = toml.load(file)
         return config
@@ -34,9 +34,23 @@ def load_config_as_class() -> AppConfig:
     AWS_CONFIG = "s3_config"
     TEAMS_CONFIG = "teams_config"
 
+    def has_required_keys(config: dict) -> bool:
+        return all(
+            key in config
+            for key in [DATABASE, FILEPATH_CONFIG, AWS_CONFIG, TEAMS_CONFIG]
+        )
+
     config_dict = load_config()
-    if not config_dict:
-        return None
+    if not has_required_keys(config_dict):
+        print("No configuration file found. Running first time setup.")
+        first_run_setup()
+        config_dict = load_config()
+
+        if not has_required_keys(config_dict):
+            raise RuntimeError(
+                "First time setup failed. Please check your configuration."
+            )
+
     database_config = DatabaseConfig(**config_dict[DATABASE])
     filepath_config = FilePathConfig(**config_dict[FILEPATH_CONFIG])
     aws_config = S3Config(**config_dict[AWS_CONFIG])

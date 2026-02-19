@@ -16,6 +16,9 @@ def get_graph_token():
         scopes=["https://graph.microsoft.com/.default"]
     )
 
+    if not result:
+        print("Error obtaining token.")
+        return None
     if "access_token" in result:
         return result["access_token"]
     print("Error obtaining token:", result.get("error"))

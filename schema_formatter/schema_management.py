@@ -2,12 +2,13 @@ import os
 import sqlite3
 import subprocess
 from config_management import AppConfig, load_str_replacements
+from pathlib import Path
 
 # Edit replacements.toml to add custom replacements.
 # Standard replacements can also be edited if needed.
 
 
-def delete_file(file_name: str) -> int:
+def delete_file(file_name: Path) -> int:
     """Deletes file_name if exists using os.remove."""
     try:
         if os.path.exists(file_name):

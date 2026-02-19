@@ -13,19 +13,19 @@ class DatabaseConfig:
 
 @dataclass
 class FilePathConfig:
-    output_dir: str
-    pg_dump_path: str
-    postgres_backup_file: str
-    sqlite_import_file: str
-    sqlite_db: str
+    output_dir: Path
+    pg_dump_path: Path
+    postgres_backup_file: Path
+    sqlite_import_file: Path
+    sqlite_db: Path
 
     def __post_init__(self):
         if not isinstance(self.output_dir, Path):
             self.output_dir: Path = Path(self.output_dir)
 
-        self.postgres_backup_file: Path = self.output_dir / self.postgres_backup_file
-        self.sqlite_import_file: Path = self.output_dir / self.sqlite_import_file
-        self.sqlite_db: Path = self.output_dir / self.sqlite_db
+        self.postgres_backup_file = self.output_dir / self.postgres_backup_file
+        self.sqlite_import_file = self.output_dir / self.sqlite_import_file
+        self.sqlite_db = self.output_dir / self.sqlite_db
 
 
 @dataclass

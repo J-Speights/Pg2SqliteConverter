@@ -24,16 +24,12 @@ from notify import notify_teams
 
 def main() -> None:
     args = handle_arguments()
-    config = load_config_as_class()
 
     if args.config:
         print("Re-running first time configuration.")
         first_run_setup()
 
-    if config is None:
-        print("No configuration file found. Running first time setup.")
-        first_run_setup()
-        config = load_config_as_class()
+    config = load_config_as_class()
 
     # TODO: Alter database query: this goes to the cloud db.
     # TODO: We'll basically be doing our database edit from here, instead of from pgadmin.
