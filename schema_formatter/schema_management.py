@@ -160,6 +160,9 @@ def convert_schema_from_pg_to_sqlite(config: AppConfig) -> int:
     # Strip out all ALTER TABLEs, This gets rid of change OWNER lines.
     lines = [line for line in lines if not line.lstrip().startswith("ALTER TABLE")]
 
+    # Strip out all ALTER VIEWs, Sqlite doesn't use them.
+    lines = [line for line in lines if not line.lstrip().startswith("ALTER VIEW")]
+
     # Find the start of the last CREATE statement
     last_create_index = None
     for i, line in enumerate(lines):
