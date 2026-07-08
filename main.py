@@ -41,12 +41,12 @@ def main() -> None:
     if not exit_code:
         exit_code = create_sqlite_database(config)
 
-    if not exit_code:
-        exit_code, s3_url = upload_to_s3(config)
+    # if not exit_code:
+    #     exit_code, s3_url = upload_to_s3(config)
 
-    if not exit_code and s3_url:
-        webhook_url = config.teams_config.webhook_url
-        exit_code = notify_teams(webhook_url, s3_url)
+    # if not exit_code and s3_url:
+    #     webhook_url = config.teams_config.webhook_url
+    #     exit_code = notify_teams(webhook_url, s3_url)
 
     if exit_code:
         sys.exit(exit_code)

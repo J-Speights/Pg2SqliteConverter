@@ -21,3 +21,5 @@
 "inserted_at text NOT NULL" = "inserted_at text"
 "updated_at text NOT NULL" = "updated_at text"
 "::text" = ""
+"charge_type text DEFAULT 'one_time' NOT NULL," = "charge_type text"
+"CONSTRAINT billing_item_pricebook_charge_type_check CHECK ((charge_type = ANY (ARRAY['one_time', 'recurring'])))" = ""
