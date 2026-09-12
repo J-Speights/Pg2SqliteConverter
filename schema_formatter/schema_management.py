@@ -1,7 +1,9 @@
 import os
+import re
 import sqlite3
 import subprocess
 from config_management import AppConfig, load_str_replacements
+from config_management import load_excluded_tables
 from pathlib import Path
 
 # Edit replacements.toml to add custom replacements.
@@ -118,6 +120,36 @@ def fix_primary_key(line: str) -> str:
     return line
 
 
+def exclude_tables(lines: list[str], excluded_tables: list[str]) -> list[str]:
+    """Removes complete CREATE TABLE statements matching an excluded table name."""
+    if not excluded_tables:
+        return lines
+
+    filtered_lines = []
+    skipping_table = False
+    skip_table = False
+
+    for line in lines:
+        if not skipping_table:
+            table_match = re.match(
+                r"\s*CREATE TABLE(?: IF NOT EXISTS)?\s+(?:[^.]+\.)?\"?([^\s\(\"]+)\"?",
+                line,
+                re.IGNORECASE,
+            )
+            if table_match:
+                skipping_table = True
+                skip_table = table_match.group(1) in excluded_tables
+
+        if not skip_table:
+            filtered_lines.append(line)
+
+        if skipping_table and ";" in line:
+            skipping_table = False
+            skip_table = False
+
+    return filtered_lines
+
+
 def convert_schema_from_pg_to_sqlite(config: AppConfig) -> int:
     """
     Reads a schema backup from Postgres and drops anything sqlite does not or cannot use.
@@ -182,6 +214,8 @@ def convert_schema_from_pg_to_sqlite(config: AppConfig) -> int:
     # Throw away all of the lines after CREATE statements, SQLite doesn't use them.
     if end_of_last_create_index is not None:
         lines = lines[: end_of_last_create_index + 1]
+
+    lines = exclude_tables(lines, load_excluded_tables())
 
     # Handle all additional string replacement work, defined in string_replacement
     lines = [string_replacement(line) for line in lines]

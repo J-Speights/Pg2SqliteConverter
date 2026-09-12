@@ -14,6 +14,12 @@ def load_str_replacements() -> dict:
     return {**standard_replacements, **custom_replacements}
 
 
+def load_excluded_tables() -> list[str]:
+    """Loads table names whose CREATE TABLE statements should be omitted."""
+    replacements = toml.load("replacements.toml")
+    return replacements.get("excluded_tables", {}).get("names", [])
+
+
 def load_config() -> dict[str, dict]:
     """
     Retrieves data from the config.toml file.
