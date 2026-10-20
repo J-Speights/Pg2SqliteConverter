@@ -32,6 +32,8 @@
 names = [
     "billing_audit_log", "billing_customer_nonsaas_items", "billing_customer_saas_rates", "billing_customer_stores", "billing_customers", "billing_headers",
     "billing_item_pricebook", "billing_items", "billing_location_information",
+    "helpdesk_closing_codes", "helpdesk_contact_merchants", "helpdesk_contact_types", "helpdesk_contacts", "helpdesk_inbound_messages", "helpdesk_message_attachments",
+    "helpdesk_thread_continuations", "helpdesk_ticket_messages", "helpdesk_ticket_statuses", "helpdesk_tickets",
     "iso_resource_links", "iso_resource_sections",
     "kb_articles", "kb_categories", "kb_images", 
     "lambda_errors",

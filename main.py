@@ -1,10 +1,9 @@
 """
-NOTE: Custom replacements are currently defined in the schema_management file.
-Edit the CUSTOM_REPLACEMENTS dictionary to add or remove custom replacements.
+Create a SQLite database from a PostgreSQL schema-only backup.
 
-The TODOs in the main function are largely Nimble project specific.
-They sync the cloud database, the local api database, and the station DBs automatically.
-TODO: clean this up in the main branch.
+The main workflow backs up the configured PostgreSQL schema, converts it to
+SQLite-compatible SQL, and applies that schema to the configured SQLite database.
+Use --config to rerun the interactive configuration setup.
 """
 
 import sys
@@ -22,7 +21,7 @@ from upload import upload_to_s3
 from notify import notify_teams
 
 
-def main() -> None:
+def main() -> int:
     args = handle_arguments()
 
     if args.config:
@@ -49,10 +48,9 @@ def main() -> None:
     #     exit_code = notify_teams(webhook_url, s3_url)
 
     if exit_code:
-        sys.exit(exit_code)
+        return exit_code
 
-    # TODO: write base64 query to the ref_local_db_updates table.
-    sys.exit(0)
+    return 0
 
 
 if __name__ == "__main__":

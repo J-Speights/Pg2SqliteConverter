@@ -150,6 +150,25 @@ def exclude_tables(lines: list[str], excluded_tables: list[str]) -> list[str]:
     return filtered_lines
 
 
+def remove_alter_table_statements(lines: list[str]) -> list[str]:
+    """Removes ALTER TABLE statements, including any continuation lines."""
+    filtered_lines = []
+    skipping_statement = False
+
+    for line in lines:
+        if not skipping_statement and line.lstrip().upper().startswith("ALTER TABLE"):
+            skipping_statement = True
+
+        if skipping_statement:
+            if ";" in line:
+                skipping_statement = False
+            continue
+
+        filtered_lines.append(line)
+
+    return filtered_lines
+
+
 def convert_schema_from_pg_to_sqlite(config: AppConfig) -> int:
     """
     Reads a schema backup from Postgres and drops anything sqlite does not or cannot use.
@@ -189,8 +208,8 @@ def convert_schema_from_pg_to_sqlite(config: AppConfig) -> int:
     # Strip out all comments
     lines = [line for line in lines if not line.lstrip().startswith("--")]
 
-    # Strip out all ALTER TABLEs, This gets rid of change OWNER lines.
-    lines = [line for line in lines if not line.lstrip().startswith("ALTER TABLE")]
+    # Strip out all ALTER TABLE statements, including multiline statements.
+    lines = remove_alter_table_statements(lines)
 
     # Strip out all ALTER VIEWs, Sqlite doesn't use them.
     lines = [line for line in lines if not line.lstrip().startswith("ALTER VIEW")]
